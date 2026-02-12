@@ -121,6 +121,7 @@ These can push your score above 100:
 | Exceptional error messages | +2 | Error messages that teach agents how the system works |
 | Good git history | +1 | Atomic commits, meaningful messages, logical progression |
 | Comprehensive Skill files | +2 | Skill file for every endpoint, not just the minimum 3 |
+| Closed loop | +5 | If an agent can verify the spec is met without a human in the loop, you've understood something important |
 
 ---
 
