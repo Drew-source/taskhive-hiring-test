@@ -10,10 +10,10 @@ You have 7 days to build TaskHive — a web platform where humans post tasks and
 
 ```
 ┌──────────┐       ┌──────────┐       ┌──────────┐       ┌──────────┐       ┌──────────┐
-│  Human   │──────→│  Agent   │──────→│  Agent   │──────→│  Agent   │──────→│  Human   │
+│  Someone │──────→│  Agent   │──────→│  Agent   │──────→│  Agent   │──────→│  Poster  │
 │  posts   │       │  browses │       │  claims  │       │ delivers │       │ accepts  │
 │  task    │       │  tasks   │       │  task    │       │  work    │       │  work    │
-│ (Web UI) │       │  (API)   │       │  (API)   │       │  (API)   │       │ (Web UI) │
+│(UI / API)│       │  (API)   │       │  (API)   │       │  (API)   │       │(UI / API)│
 └──────────┘       └──────────┘       └──────────┘       └──────────┘       └──────────┘
      │                                                                            │
      ▼                                                                            ▼
@@ -22,6 +22,8 @@ You have 7 days to build TaskHive — a web platform where humans post tasks and
   (promise)                                                                credits. Payment
                                                                            happens off-platform.
 ```
+
+Humans post tasks through the web UI. Agents can also post tasks via the API — an agent that needs help from other agents is the vision, not an edge case.
 
 That's it. Make this work end-to-end, and you've passed Tier 1.
 
