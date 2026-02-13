@@ -11,7 +11,7 @@ This document explains exactly how your submission will be scored. No hidden cri
 | Category | Weight | What We Evaluate |
 |----------|--------|------------------|
 | Core Loop Works | 30% | End-to-end: post → claim → deliver → accept. Credits flow correctly. |
-| Agent API Quality | 25% | Speed, error messages, bulk ops, pagination, idempotency |
+| Agent API Quality | 25% | Envelope, error messages, status codes, pagination, edge cases |
 | Trinity Architecture | 20% | Skill files exist, are accurate, are micro-verbose, match implementation |
 | Code Quality | 15% | TypeScript strictness, organization, naming, separation of concerns |
 | Documentation | 10% | Setup instructions work, DECISIONS.md explains choices |
@@ -22,35 +22,31 @@ This document explains exactly how your submission will be scored. No hidden cri
 
 ## How We Test
 
-We follow this exact sequence when evaluating your submission:
+We test against your **live deployment URL**. All curl commands and UI interactions happen on the deployed version.
 
-### 1. Clone and Setup (Documentation — 10%)
+### 1. Deployment Check (prerequisite)
 
 ```bash
-git clone <your-repo>
-cd <your-repo>
-# Follow YOUR setup instructions exactly
+curl <your-url>/api/v1/tasks
 ```
 
-- Does `npm install` (or equivalent) succeed?
-- Does the database setup work as documented?
-- Does `npm run dev` (or equivalent) start the application?
-- Is there a `.env.example` with all required variables?
-- Does `DECISIONS.md` exist and explain architectural choices?
+- Does the live URL respond?
+- Does the API return a valid response?
+- Is the web UI accessible?
 
-**If setup fails, we stop here. Broken setup = instant DQ.**
+**If the deployment is down or doesn't respond, we stop here. Broken deployment = instant DQ.**
 
 ### 2. Core Loop Test (Core Loop — 30%)
 
-We test the full lifecycle manually:
+We test the full lifecycle against your live URL:
 
 1. Register a new user → verify 500 credit bonus
 2. Create a task (budget: 200 credits) → verify task created with status `open`
 3. Register an agent → get API key
-4. `curl GET /api/v1/tasks` → verify task appears
-5. `curl POST /api/v1/tasks/:id/claims` → verify claim created
+4. `curl GET <your-url>/api/v1/tasks` → verify task appears
+5. `curl POST <your-url>/api/v1/tasks/:id/claims` → verify claim created
 6. Accept claim in web UI → verify task status updates
-7. `curl POST /api/v1/tasks/:id/deliverables` → verify deliverable created
+7. `curl POST <your-url>/api/v1/tasks/:id/deliverables` → verify deliverable created
 8. Accept deliverable in web UI → verify:
    - Task status → completed
    - Agent operator receives reputation credits (budget minus 10% fee)
@@ -95,14 +91,21 @@ We read your source code:
 - **Error handling:** Consistent error creation? No swallowed errors?
 - **Security:** API keys properly hashed? No sensitive data in responses? SQL injection protection?
 
+### 6. Documentation Review (Documentation — 10%)
+
+- Does `DECISIONS.md` exist and explain architectural choices?
+- Does `README.md` include working setup instructions?
+- Is `.env.example` present with all required variables?
+
 ---
 
 ## Instant Disqualification
 
 Any of these result in automatic failure (0 points):
 
+- **Deployment not working** — If your live URL doesn't load or the API doesn't respond, we can't evaluate it.
+- **No live URL submitted** — Localhost-only submissions are not accepted.
 - **Plagiarism** — Copying another submission or significant portions of existing open-source projects without attribution. Using AI tools (Claude Code, Cursor, Copilot) is expected and encouraged — copying human-written code is not.
-- **Setup doesn't work** — If we can't run the application after following your instructions, we can't evaluate it.
 - **No core loop** — If the basic post → claim → deliver → accept flow doesn't work at all (partial implementation with some steps working is acceptable).
 - **No Skill files** — Zero Skill files means you didn't engage with the Trinity Architecture, which is fundamental to the test.
 - **No API key auth** — Agent API must use API key authentication. Session-only auth means no agent API.
@@ -110,18 +113,20 @@ Any of these result in automatic failure (0 points):
 
 ---
 
-## Bonus Points (up to +10)
+## Bonus Points (up to +20)
 
 These can push your score above 100:
 
 | Bonus | Points | Criteria |
 |-------|--------|----------|
+| **Reviewer Agent** | **+10** | **A LangGraph-powered agent that automatically evaluates deliverables submitted on the platform. See `REQUIREMENTS.md` Bonus Tier for full spec.** |
 | Working demo bot | +3 | A script that runs the full agent lifecycle end-to-end |
 | Creative ID mapping | +2 | Interesting solution to the UUID ↔ integer bridge |
 | Exceptional error messages | +2 | Error messages that teach agents how the system works |
 | Good git history | +1 | Atomic commits, meaningful messages, logical progression |
 | Comprehensive Skill files | +2 | Skill file for every endpoint, not just the minimum 3 |
-| Closed loop | +5 | If an agent can verify the spec is met without a human in the loop, you've understood something important |
+
+The **Reviewer Agent** is the highest-value bonus. It reflects the real work you'd do on our agent infrastructure (LangGraph / Aegra). If you can build a bot that reviews code submissions, navigates deployed URLs to verify work, and produces structured evaluations — you've demonstrated you can work with our stack.
 
 ---
 
@@ -148,3 +153,5 @@ Beyond the rubric, here's what separates great submissions:
 4. **Credit correctness** — Credits are reputation points, but the ledger must be consistent. Transactions are atomic, `balance_after` snapshots are accurate.
 
 5. **Signal over noise** — We'd rather see 5 well-implemented endpoints with great Skill files than 15 endpoints with sloppy error handling and no Skill files.
+
+6. **Reviewer Agent** — If you tackle the bonus, we're looking at: Does the agent actually consume the TaskHive API? Does it use LangGraph properly (nodes, edges, state)? Can it produce a useful evaluation of submitted work? This tells us you can work on our agent infrastructure from day one.
